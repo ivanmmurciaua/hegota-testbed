@@ -3,19 +3,19 @@
 # (hash-based) signatures aggregated off-chain via a DEP_VERIFY (mode 0x4) frame,
 # a different envelope, and chainId 1337.
 #
-# The core PoCs here are written for the ethrex dialect (ML-DSA inline, 8-field
-# envelope), so they are EXPECTED TO FAIL against Daisugi until a Daisugi codec and
-# signature backend are implemented (phase 2b). This env exists so the folder-level
-# abstraction is complete and the same testbed can be pointed at Daisugi with one
-# flag. A failure here is the expected signal, not a bug to patch in the testbed.
+# This backend ships its OWN dialect PoCs (a Node signer+codec in pocs/) rather
+# than reusing the ethrex core PoCs. run.sh picks the Node runner via RUNNER below.
+# Run ./backends/daisugi/setup.sh once before ./run.sh daisugi.
 export PQ_RPC_URL=https://daisugi.fyi/rpc
 export PQ_CHAIN_ID=1337
-export PQ_FAUCET_URL=https://daisugi.fyi/api/claim
+export PQ_FAUCET_URL=https://daisugi.fyi/api/faucet
 
-# Envelope/flags differ on Daisugi; these are placeholders carried over from ethrex.
-export PQ_FEE_NESTED=1
-export PQ_OMIT_RECENT_ROOTS=1
+# Daisugi contract pins (Gen2 aggregated-frame account). Verify against the RPC
+# before trusting a build; this testnet may re-genesis.
+export DAISUGI_FACTORY=0x4940E0D0883fa40985fEC192FdD9E11C7A34d9D0
+export DAISUGI_IMPLEMENTATION=0x016d1A8326E714552F6517177DB55eD45a5CB6E8
 
-# No ML-DSA ZKNOX verifier on Daisugi (it verifies LeanSPHINCS by aggregation).
-# Left empty on purpose: the ML-DSA PoCs fail fast here.
-export PQ_SINGLETON=
+# Dialect runner: Node PoCs in this backend's own pocs/ directory.
+export RUNNER=node
+export POCS_DIR="$HERE/backends/daisugi/pocs"
+export DEFAULT_POCS="poc_submit.mjs"
