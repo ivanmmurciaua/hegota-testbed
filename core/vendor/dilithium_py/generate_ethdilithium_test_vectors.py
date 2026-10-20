@@ -1,0 +1,84 @@
+from .dilithium.default_parameters import Dilithium2 as D
+from .keccak_prng.keccak_prng_wrapper import Keccak256PRNG
+from .utilities.utils import solidity_compact_mat, solidity_compact_vec
+
+# An example of ETHDilithium.
+msg = b"We are ZKNox."
+
+D.set_drbg_seed(b"123456789012345678901234567890123456789012345678")
+pk, sk = D.keygen(_xof=Keccak256PRNG, _xof2=Keccak256PRNG)
+
+# PK
+A_hat, tr, t1_new = D.pk_for_eth(pk)
+
+# Compact PK for Solidity
+A_hat_compact = A_hat.compact_256(32)
+t1_new_compact = t1_new.compact_256(32)
+
+XOF = Keccak256PRNG
+file = open(
+    "../test/ethdilithium.t.sol", 'w')
+file.write("""
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.13;
+//  Code obtained from `generate_test_vectors.py` python file
+
+import {Test, console} from "forge-std/Test.sol";
+import {ZKNOX_ethdilithium} from "../src/ZKNOX_ethdilithium.sol";
+import {DeployPKContract} from "../script/Deploy_MLDSAETH_PK.s.sol";
+import {SSTORE2} from "sstore2/SSTORE2.sol";
+import {Constants} from "./seed.sol";
+import {PythonSigner} from "../src/ZKNOX_PythonSigner.sol";
+
+contract ETHDilithiumTest is Test {
+    ZKNOX_ethdilithium dilithium = new ZKNOX_ethdilithium();
+    PythonSigner pythonSigner = new PythonSigner();
+
+    function testVerify() public {
+""")
+
+file.write("// Public key\n")
+file.write(solidity_compact_mat(A_hat_compact, 'aHat'))
+file.write("bytes memory tr = hex\"{}\";\n".format(tr.hex()))
+file.write(solidity_compact_vec(t1_new_compact, 't1'))
+
+file.write("\nbytes memory publicKeyData = abi.encode(abi.encode(aHat), tr, abi.encode(t1));\n")
+file.write("address pubKeyContract = SSTORE2.write(publicKeyData);\n")
+
+# SIG
+sig = D.sign(sk, msg, _xof=XOF, _xof2=XOF)
+assert D.verify(pk, msg, sig, _xof=XOF, _xof2=XOF)
+file.write("bytes memory sig = hex\"{}\";\n".format(sig.hex()))
+
+file.write("""
+        // MESSAGE
+        bytes memory msgs = "We are ZKNox.";
+        uint256 gasStart = gasleft();
+        bool ver = dilithium.verify(abi.encodePacked(address(pubKeyContract)), msgs, sig, "");
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Gas used:", gasUsed);
+        assertTrue(ver);
+    }
+           
+    function testVerifyShorter() public {
+        // Public key contract
+        DeployPKContract deployPkContract = new DeployPKContract();
+        address mldsaAddress = deployPkContract.run();
+
+        string memory data = "0x1111222233334444111122223333444411112222333344441111222233334444";
+        bytes memory dataBytes = hex"1111222233334444111122223333444411112222333344441111222233334444";
+        string memory mode = "ETH";
+        string memory seedStr = Constants.SEED_POSTQUANTUM_STR;
+        (bytes memory cTilde, bytes memory z, bytes memory h) = pythonSigner.sign("pythonref", data, mode, seedStr);
+        bytes memory sig = abi.encodePacked(cTilde, z, h);
+
+        // MESSAGE
+        uint256 gasStart = gasleft();
+        bool ver = dilithium.verify(abi.encodePacked(mldsaAddress), dataBytes, sig, "");
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Gas used:", gasUsed);
+        assertTrue(ver);
+    }
+}
+""")
+file.close()

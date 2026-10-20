@@ -1,0 +1,12 @@
+# Pure pip dependencies. The PQ engine (dilithium_py = ETHDilithium, and polyntt)
+# is vendored in-tree as local copies, so it is NOT listed here.
+eth_abi==6.0.0
+eth-hash==0.8.0
+eth-keys==0.8.0
+eth-typing==6.0.0
+eth-utils==6.0.0
+kyber-py==1.2.0
+numpy==2.2.6
+pycryptodome==3.23.0
+requests==2.34.2
+rlp==5.0.0

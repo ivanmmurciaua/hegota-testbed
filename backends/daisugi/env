@@ -1,0 +1,21 @@
+# Backend: Daisugi (Nethermind). A DISTINCT client and testnet, not a frozen
+# standard and not interoperable with ethrex Hegota. Daisugi uses LeanSPHINCS
+# (hash-based) signatures aggregated off-chain via a DEP_VERIFY (mode 0x4) frame,
+# a different envelope, and chainId 1337.
+#
+# The core PoCs here are written for the ethrex dialect (ML-DSA inline, 8-field
+# envelope), so they are EXPECTED TO FAIL against Daisugi until a Daisugi codec and
+# signature backend are implemented (phase 2b). This env exists so the folder-level
+# abstraction is complete and the same testbed can be pointed at Daisugi with one
+# flag. A failure here is the expected signal, not a bug to patch in the testbed.
+export PQ_RPC_URL=https://daisugi.fyi/rpc
+export PQ_CHAIN_ID=1337
+export PQ_FAUCET_URL=https://daisugi.fyi/api/claim
+
+# Envelope/flags differ on Daisugi; these are placeholders carried over from ethrex.
+export PQ_FEE_NESTED=1
+export PQ_OMIT_RECENT_ROOTS=1
+
+# No ML-DSA ZKNOX verifier on Daisugi (it verifies LeanSPHINCS by aggregation).
+# Left empty on purpose: the ML-DSA PoCs fail fast here.
+export PQ_SINGLETON=

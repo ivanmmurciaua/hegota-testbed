@@ -1,0 +1,14 @@
+# Backend: ethrex Hegota (privacy-8141). The dialect the core PoCs are written for:
+# 8-field frame-tx envelope, ML-DSA inline signatures (ZKNOX verifier), predeploys
+# NONCE_MANAGER 0x...8250 and RECENT_ROOT 0x...8272. This backend runs green.
+export PQ_RPC_URL=https://rpc1.privacy.ethrex.xyz
+export PQ_CHAIN_ID=8141
+export PQ_FAUCET_URL=https://faucet.privacy.ethrex.xyz/api/claim
+
+# Current Hegota envelope layout.
+export PQ_FEE_NESTED=1
+export PQ_OMIT_RECENT_ROOTS=1
+
+# ML-DSA verifier (ZKNOX singleton) currently anchored on this network. Overrides
+# any .anchors.json; re-anchor here if the testnet re-genesises.
+export PQ_SINGLETON=0x1602bef8eaa64f9fd3cdf4331473400deee70201
