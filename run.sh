@@ -36,10 +36,9 @@ export PQ_DKSAP="$CORE/vendor"
 export PYTHONPATH="$CORE/pocs:$CORE/lib:$CORE/vendor${PYTHONPATH:+:$PYTHONPATH}"
 
 PY="${PYTHON:-python3}"
-
 # Dialect-aware runner. Defaults reproduce the ethrex behavior byte-for-byte:
-# python interpreter, PoCs in core/pocs, the five core PoCs when none are named.
-# A backend env may override RUNNER (python|node), POCS_DIR, and DEFAULT_POCS.
+# python interpreter, PoCs in core/pocs, the core PoCs (incl. the paymaster) when none
+# are named. A backend env may override RUNNER (python|node), POCS_DIR, and DEFAULT_POCS.
 RUNNER="${RUNNER:-python}"
 POCS_DIR="${POCS_DIR:-$CORE/pocs}"
 
@@ -48,7 +47,7 @@ if [ "$#" -gt 0 ]; then
 elif [ -n "${DEFAULT_POCS:-}" ]; then
   read -r -a POCS <<< "$DEFAULT_POCS"
 else
-  POCS=("poc_r.py" "poc_k_retest.py" "poc_f_selfpay.py" "poc_d.py" "poc_e.py")
+  POCS=("poc_r.py" "poc_k_retest.py" "poc_f_selfpay.py" "poc_d.py" "poc_e.py" "poc_paymaster.py")
 fi
 
 rc=0
