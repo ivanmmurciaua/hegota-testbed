@@ -33,7 +33,7 @@ export PQ_DKSAP="$CORE/vendor"
 export PYTHONPATH="$CORE/pocs:$CORE/lib:$CORE/vendor${PYTHONPATH:+:$PYTHONPATH}"
 
 PY="${PYTHON:-python3}"
-POCS=("poc_r.py" "poc_k_retest.py" "poc_f_selfpay.py" "poc_d.py" "poc_e.py")
+POCS=("poc_r.py" "poc_k_retest.py" "poc_f_selfpay.py" "poc_d.py" "poc_e.py" "poc_paymaster.py")
 [ "$#" -gt 0 ] && POCS=("$@")
 
 rc=0
