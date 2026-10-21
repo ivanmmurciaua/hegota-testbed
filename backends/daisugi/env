@@ -18,4 +18,4 @@ export DAISUGI_IMPLEMENTATION=0x016d1A8326E714552F6517177DB55eD45a5CB6E8
 # Dialect runner: Node PoCs in this backend's own pocs/ directory.
 export RUNNER=node
 export POCS_DIR="$HERE/backends/daisugi/pocs"
-export DEFAULT_POCS="poc_submit.mjs"
+export DEFAULT_POCS="poc_submit.mjs poc_transfer.mjs"
