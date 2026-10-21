@@ -35,20 +35,37 @@ Only numpy and the Ethereum helper libs come from pip.
 
 ## Backends
 
-A backend is just a folder with an `env` file of network parameters. The core PoCs
-are dialect-specific (ethrex: 8-field envelope, ML-DSA inline signatures, predeploys
-0x...8250 and 0x...8272). Running them against a different-dialect network is expected
-to fail until that dialect gets its own codec and signature backend. **If a backend
-fails, that is the reported signal; the testbed is never modified to force a pass.**
+A backend is a folder with an `env` file of network parameters, and optionally its own
+dialect PoCs. `run.sh [backend]` selects one (default `ethrex`). If a backend fails,
+that is the reported signal; the testbed is never modified to force a pass.
 
-- **ethrex**: runs green (8141 + 8250 + 8272 + ML-DSA self-pay gate).
-- **daisugi**: carried over as-is. Daisugi uses LeanSPHINCS aggregated off-chain via a
-  `DEP_VERIFY` (mode 0x4) frame, a different envelope and chainId 1337, so the ML-DSA
-  PoCs fail here. The backend exists so the abstraction is complete; a real Daisugi
-  codec/signer is phase 2b.
+ethrex Hegota and Daisugi are distinct, experimental testnets, neither a frozen standard
+and not interoperable. They implement the rail differently, so each has its own dialect.
+A capability one has natively may simply not exist on the other, which is a valid result,
+not a failure.
 
-ethrex Hegota and Daisugi are distinct, experimental testnets and neither is a frozen
-standard, so frame-tx compatibility between them is not assumed.
+- `ethrex` (Python, `core/pocs`): green. Frame transactions (8141), keyed nonces (8250),
+  recent roots (8272), ML-DSA inline signatures verified on-chain, self-pay.
+- `daisugi` (Node, `backends/daisugi/pocs`): green. Frame-tx-only, SPHINCS-G hash-based
+  signatures carried outside the tx and aggregated off-chain (a `DEP_VERIFY` frame plus
+  the block recursive STARK), submitted via `eth_sendProofWrapper`. Verified: a
+  signature-gated ETH transfer (good signature moves value, forged signature rejected)
+  and arbitrary calls as the account.
+
+### Capability differences (verified on-chain)
+
+Not every capability maps across. On Daisugi:
+
+| capability (ethrex) | on Daisugi |
+| --- | --- |
+| keyed nonces (8250) | not available: only the canonical nonce key 0 is accepted, `0x...8250` is a revert stub, no independent lanes |
+| recent roots (8272) | does not exist: `0x...8272` has no code. Daisugi uses a time-deadline predeploy (`0x...8141`) and block-level aggregation instead |
+| arbitrary call via SENDER | available (smart-wallet behavior, executes as the account) |
+| pay-by-nick on a native root gate | not available natively (no 8272); only as a plain resolver contract plus a SENDER payment |
+
+So the ethrex features built on native predeploys (8250 keyed lanes, 8272 recent roots)
+are not reachable in that form on Daisugi; its rail is frame transactions plus aggregated
+post-quantum signatures, not predeploy-backed state gates.
 
 ## Run
 
