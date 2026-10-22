@@ -18,4 +18,7 @@ export DAISUGI_IMPLEMENTATION=0x016d1A8326E714552F6517177DB55eD45a5CB6E8
 # Dialect runner: Node PoCs in this backend's own pocs/ directory.
 export RUNNER=node
 export POCS_DIR="$HERE/backends/daisugi/pocs"
-export DEFAULT_POCS="poc_submit.mjs poc_transfer.mjs poc_call.mjs poc_paymaster.mjs"
+# poc_paymaster_pq.mjs replaces the k1-EOA paymaster checkpoint (poc_paymaster.mjs,
+# kept on disk) with a PQ account + paymaster CONTRACT, both contracts, no EOA rail
+# roles. poc_pq_selfpay.mjs is its de-risk step (in-frame SPHINCS self-pay).
+export DEFAULT_POCS="poc_submit.mjs poc_transfer.mjs poc_call.mjs poc_pq_selfpay.mjs poc_paymaster_pq.mjs"
