@@ -1,0 +1,4 @@
+# fetched by setup.sh
+vendor_ref/
+node_modules/
+package-lock.json

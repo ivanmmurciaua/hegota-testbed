@@ -59,10 +59,16 @@ editing a PoC.
 ## State
 
 - ethrex backend: GREEN, 5/5 on privacy-8141 (8141 + 8250 + 8272 + ML-DSA self-pay).
-- daisugi backend: stub. Daisugi (Nethermind, chainId 1337) uses LeanSPHINCS hash-based
-  signatures aggregated off-chain via a DEP_VERIFY (mode 0x4) frame (EIP-8288) and a
-  different envelope, so the ethrex-dialect PoCs fail there on purpose. A real Daisugi
-  codec and signer is future work (phase 2b).
+  Python, runs the core/pocs PoCs.
+- daisugi backend: GREEN, a real SPHINCS-G submission (Node). Daisugi (Nethermind,
+  chainId 1337) is a different dialect: SPHINCS-G hash-based signatures carried outside
+  the tx and aggregated off-chain via a DEP_VERIFY (mode 0x4) frame (EIP-8288), submitted
+  through eth_sendProofWrapper. It ships its OWN Node PoCs under backends/daisugi/pocs/
+  (not the core/pocs ones), and reuses a reference signer fetched by
+  backends/daisugi/setup.sh. Run with `./run.sh daisugi` after
+  `./backends/daisugi/setup.sh`. Mapping the other rail
+  capabilities onto the Daisugi dialect is future work; the signer+codec+submit backbone
+  is in place.
 
 ## Subagents
 
