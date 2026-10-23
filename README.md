@@ -16,11 +16,13 @@ core/                 the shared, self-contained testbed (dialect-specific)
     poc_d.py          pay-by-nick (directory root in 8272)
     poc_e.py          PQ smart wallet (arbitrary call, inline ML-DSA)
     poc_paymaster.py  frame-native paymaster (third party pays the gas)
+    poc_leansphincs_s.py  hash-based PQ self-pay (leanSphincs-s, in-frame verify)
     *.bin, *.yul      contract artifacts
   lib/                frametx8.py (8-field codec), netcfg.py, keyfile.py, _pqdksap.py
   vendor/             the engine: pq_dksap/ (RPC, ML-DSA, ML-KEM, stealth),
                       dilithium_py/ (ETHDilithium, matches the on-chain verifier),
-                      polyntt/ (dilithium_py dependency)
+                      polyntt/ (dilithium_py dependency),
+                      leansphincs/ (leanSphincs-s keccak signer, MIT, pip-only)
 
 backends/<name>/env   per-network config (rpc, chainId, faucet, envelope flags,
                       verifier/singleton). One folder per client/testnet.
@@ -59,6 +61,34 @@ not a failure.
   live SPHINCS verifier, `eth_sendRawTransaction`). Verified: a SPHINCS-gated ETH transfer,
   arbitrary calls as the account, and a PQ account sponsored by a paymaster contract (both
   contracts, no rail-role EOA, Gen1, tx 0xd2ea386b).
+
+### A second signature scheme on ethrex: leanSphincs-s
+
+`poc_leansphincs_s.py` runs a HASH-based PQ signature on the same ethrex rail, next
+to the lattice ML-DSA PoCs. leanSphincs-s (leanSphincs small: h=26, k=13, a=12,
+T=128, a 4164-byte signature) is a SPHINCS+ variant over Ethereum Keccak-256,
+verified on-chain in ~249 keccak256 calls by the shared verifier
+`0xae3bA3e1...3481a`. The spend is a two-frame self-pay: the VERIFY frame
+delegatecalls the shared frame module `0xAA481E83...4295`, which SIGDATACOPYs the
+ARBITRARY witness and staticcalls the verifier on `compute_sig_hash(tx)`, then
+APPROVEs execution and payment; a SENDER frame moves the value. The account
+self-pays (it is the frame-tx sender and payer), so the whole spend is ~288K gas
+with no relayer, operator or paymaster. Where `poc_f_selfpay` gates a transfer
+behind a ~5M-gas ML-DSA verify batched via `FLAG_ATOMIC_BATCH`, here the hash-based
+verify runs inside the VERIFY frame itself.
+
+The signer is the vendored MIT Python signer `core/vendor/leansphincs/` (pip-only,
+needs only pycryptodome). At runtime the PoC keygens a fresh key, faucet-funds a
+fresh throwaway EOA (falling back to a funded EOA from `PQ_DEPLOYER_KEY` only if the
+faucet is rate-limited), deploys a fresh `SphincsFrameAccount`, self-pays a tiny
+transfer, and checks the receipt (status, self-pay from/payer, value moved, gasUsed
+~288K) plus a tampered-witness negative that simulation rejects. It is NOT in the
+default `./run.sh ethrex` set (a distinct scheme, and the Python keygen adds a
+couple of seconds); run it by name:
+
+```sh
+./run.sh ethrex poc_leansphincs_s.py
+```
 
 ### Capability differences (verified on-chain)
 
