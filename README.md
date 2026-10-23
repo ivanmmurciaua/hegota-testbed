@@ -113,7 +113,9 @@ the set looks tangled until the axes are pulled apart:
 1. Capability: what the transaction demonstrates (move value, self-pay, paymaster,
    smart-wallet call, pay-by-nick, recent roots, keyed nonces). This is the real content.
 2. Signature world: classical k1/ECDSA (used to isolate the frame mechanics) versus
-   post-quantum (ML-DSA on ethrex, SPHINCS-G on Daisugi).
+   post-quantum. Lattice ML-DSA (ethrex) and hash-based SPHINCS: leanSphincs-s on
+   ethrex (poc_leansphincs_s) and SPHINCS-G on Daisugi. ethrex now carries both a
+   lattice and a hash-based scheme.
 3. Network / backend: ethrex (8141) versus Daisugi (1337). This is already the
    `backends/` folder axis.
 4. Submission path (Daisugi only): Gen1 inline (`eth_sendRawTransaction`, signature in
