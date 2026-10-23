@@ -17,6 +17,7 @@ core/                 the shared, self-contained testbed (dialect-specific)
     poc_e.py          PQ smart wallet (arbitrary call, inline ML-DSA)
     poc_paymaster.py  frame-native paymaster (third party pays the gas)
     poc_leansphincs_s.py  hash-based PQ self-pay (leanSphincs-s, in-frame verify)
+    poc_leansphincs_paymaster.py  hash-based PQ account, a paymaster CONTRACT pays the gas
     *.bin, *.yul      contract artifacts
   lib/                frametx8.py (8-field codec), netcfg.py, keyfile.py, _pqdksap.py
   vendor/             the engine: pq_dksap/ (RPC, ML-DSA, ML-KEM, stealth),
@@ -88,6 +89,27 @@ couple of seconds); run it by name:
 
 ```sh
 ./run.sh ethrex poc_leansphincs_s.py
+```
+
+`poc_leansphincs_paymaster.py` is the sponsored twin: the same hash-based account, but
+a third-party paymaster CONTRACT pays the gas instead of self-pay. Both are contracts,
+no EOA in a rail role (the only EOA is the throwaway funder that faucet-claims and
+deploys). It composes this account with the frame-native paymaster of `poc_paymaster.py`:
+the account's VERIFY frame approves EXECUTION only (flags `0x2`, so the shared module's
+`APPROVE(0,0,FRAMEPARAM(0x06))` approves scope 2) gated by the in-frame hash verify of
+witness index 0; a separate storage-free `PaymasterGated` (operator ECDSA baked in code)
+runs in its own non-sender VERIFY frame, ecrecovers the operator over the same sig_hash
+and APPROVEs PAYMENT, so `payer = frame.target = the paymaster` with no `payer==sender`
+check. The account is the sender and pays ZERO gas (balance drops by only the value it
+moves); the paymaster pays all of it. Two witnesses (index 0 leanSphincs-s, index 1
+operator ECDSA) are carried together: the deployed module has NO witness-count gate, its
+`sigIndex` overload just range-checks the index and requires that entry be ARBITRARY. A
+bad operator signature reverts the paymaster's VERIFY, so ethrex rejects the tx at
+validation. This is the cheap ethrex twin of the Daisugi `poc_paymaster_pq.mjs`
+half-grail (~476K gas end to end vs a ~5M-gas ML-DSA verify). Run it by name:
+
+```sh
+./run.sh ethrex poc_leansphincs_paymaster.py
 ```
 
 ### Capability differences (verified on-chain)
