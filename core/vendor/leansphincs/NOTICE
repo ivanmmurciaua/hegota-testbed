@@ -1,0 +1,36 @@
+leanSphincs-s keccak signer (vendored, third-party, read-only)
+==============================================================
+
+File: leansphincs_s_signer.py
+
+Origin
+------
+Copied verbatim from the MIT reference repository:
+
+    nconsigny/SPHINCS-  (https://github.com/nconsigny/SPHINCS-.git)
+    path:   script/leansphincs_s_signer.py
+    commit: 0b3e36353abaa64625cb9a5050f0812eb915d342 (2026-10-21)
+    sha256: ad56ef257ca9e6585edc76c66a6b96bc8aeaa7fed0d6d403e67111d4b8f9521a
+
+Copyright (c) 2026 Nicolas Consigny <nicolas@ethereum.org>. Licensed MIT; the
+full text is in LICENSE next to this file.
+
+Upstream credit (from the file's own header)
+--------------------------------------------
+The construction is Tom Wambsgans' leanSphincs candidate crate
+(TomWambsgans/leanXMSS-leanSPHINCS-candidates, crates/sphincs on branch keccak,
+MIT OR Apache-2.0; itself adapted from leanVM's SPHINCS crate). No upstream code
+is copied: the signer is written from the specs, cross-checked against the Rust
+ports and the on-chain verifiers.
+
+Why vendored here
+-----------------
+This is the authoritative Python signer for leanSphincs-s over Ethereum
+Keccak-256. The testbed prefers it over the repository's Rust binary so the
+leanSphincs PoC stays pip-only: it depends only on pycryptodome
+(Crypto.Hash.keccak), already in the testbed's requirements.txt. It matches the
+on-chain verifier src/keccak/LeanSphincs-SAsm.sol
+(verify(bytes32 pkSeed, bytes32 pkRoot, bytes32 message, bytes sig)).
+
+Treat as read-only, like the other core/vendor/ engines. Not audited, not
+production-safe.

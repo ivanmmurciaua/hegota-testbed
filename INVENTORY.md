@@ -20,5 +20,8 @@ The engine under `core/vendor/` is third party and not inventoried here.
 | poc_e.py | 8141 | PoC-E: full PQ smart wallet, execute(target, value, data), ML-DSA-gated, self-pay. | Recorder.bin |
 | poc_f_selfpay.py | 8141 | PoC-F' self-pay: native gasless PQ spend on EIP-8141 frames, NO relayer, NO | AccountF.bin |
 | poc_k_retest.py | 8250 | PoC-K retest with the 8-field envelope: does a NON-ZERO keyed nonce (EIP-8250) | - |
+| poc_leansphincs_paymaster.py | 8141 | PoC leanSphincs-s + frame-native PAYMASTER: a hash-based PQ account whose gas is | - |
+| poc_leansphincs_s.py | 8037, 8141 | PoC leanSphincs-s: hash-based PQ self-pay on EIP-8141 frames (ethrex 8141). | SphincsFrameAccount.bin |
+| poc_paymaster.py | 8141 | PoC: a frame-NATIVE PAYMASTER on the ethrex Hegota rail (EIP-8141). | AccountP.bin, PaymasterGated.bin |
 | poc_r.py | 7843, 8272 | PoC-R: recent roots (EIP-8272) on the current Hegota build. | - |
 
