@@ -1,0 +1,6 @@
+# Per-run state, results and logs written by the driver (keys live here; never commit).
+*.state.json
+*.result.json
+*.run.log
+*.out
+__pycache__
